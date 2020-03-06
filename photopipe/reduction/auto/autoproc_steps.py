@@ -9,6 +9,8 @@ import datetime
 from astropy.time import Time
 import sys
 from scipy import interpolate
+from photopipe.reduction.astrom import vlt_autoastrometry
+from photopipe.photometry.dependencies import get_SEDs
 
 
 inpipevar = {
@@ -60,8 +62,8 @@ def autopipedefaults(pipevar=None):
         print 'Creating imaging working directory: ',  pipevar['imworkingdir']
         os.makedirs(pipevar['imworkingdir'])
 
-    pipevar['autoastrocommand'] = '/work/photometrypipeline/photopipe/reduction/astrom/vlt_autoastrometry.py'
-    pipevar['getsedcommand'] = '/work/photometrypipeline/photopipe/photometry/dependencies/get_SEDs.py'
+    pipevar['autoastrocommand'] = os.path.abspath(vlt_autoastrometry.__file__)
+    pipevar['getsedcommand'] = os.path.abspath(get_SEDs.__file__)
 
 
 def autopipeprepare(pipevar=None):
@@ -342,14 +344,15 @@ def autopipeskysubmed(pipevar=None):
         data = pf.getdata(f)
         
         data -= np.median(data[~np.isnan(data)])
-        x = np.arange(0, data.shape[1])
-        y = np.arange(0, data.shape[0])
-        data = np.ma.masked_invalid(data)
-        xx, yy = np.meshgrid(x, y)
-        x1 = xx[~data.mask]
-        y1 = yy[~data.mask]
-        newarr = data[~data.mask]
-        data = interpolate.griddata((x1, y1), newarr.ravel(), (xx, yy), method='linear')
+        data = np.nan_to_num(data)
+        # x = np.arange(0, data.shape[1])
+        # y = np.arange(0, data.shape[0])
+        # data = np.ma.masked_invalid(data)
+        # xx, yy = np.meshgrid(x, y)
+        # x1 = xx[~data.mask]
+        # y1 = yy[~data.mask]
+        # newarr = data[~data.mask]
+        # data = interpolate.griddata((x1, y1), newarr.ravel(), (xx, yy), method='nearest')
 
         # head_filter = head['FILTER'] TODO: determine if this not being used is a bug
         
