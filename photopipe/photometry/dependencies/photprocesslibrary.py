@@ -1,5 +1,5 @@
 #Photometry processing library (misc function that can be reused)
-
+import os
 import astropy.io.fits as pf
 import fnmatch
 from numpy import sqrt
